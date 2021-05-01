@@ -9,6 +9,7 @@
 #import "LNPopupCloseButton+Private.h"
 @import ObjectiveC;
 #import "LNChevronView.h"
+#import "LNFlatView.h"
 
 @implementation LNPopupCloseButton
 {
@@ -16,6 +17,7 @@
 	UIView* _highlightView;
 	
 	LNChevronView* _chevronView;
+    LNFlatView* _flatView;
 }
 
 - (instancetype)init
@@ -80,6 +82,10 @@
 	{
 		[self _setupForChevronButton];
 	}
+    else if(_style == LNPopupCloseButtonStyleFlat)
+    {
+        [self _setupForFlatButton];
+    }
 }
 
 - (UIVisualEffectView*)backgroundView
@@ -107,6 +113,13 @@
 	_chevronView.width = 5.5;
 	[_chevronView setState:LNChevronViewStateUp animated:NO];
 	[self addSubview:_chevronView];
+}
+
+- (void)_setupForFlatButton
+{
+    _flatView = [[LNFlatView alloc] initWithFrame:CGRectMake(0, 0, 42, 15)];
+    _flatView.width = 5.5;
+    [self addSubview:_flatView];
 }
 
 - (void)_setupForCircularButton
