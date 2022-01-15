@@ -88,10 +88,11 @@ NSString* const PopupSettingsTouchVisualizerEnabled = @"PopupSettingsTouchVisual
 		}
 		else
 		{
+			NSUInteger lastIdxInSection = [tableView numberOfRowsInSection:indexPath.section] - 1;
 			NSUInteger value = [[NSUserDefaults.standardUserDefaults objectForKey:key] unsignedIntegerValue];
 			if(value == 0xFFFF)
 			{
-				value = 3;
+				value = lastIdxInSection;
 			}
 			
 			if(indexPath.row == value)
@@ -110,10 +111,7 @@ NSString* const PopupSettingsTouchVisualizerEnabled = @"PopupSettingsTouchVisual
 	[NSUserDefaults.standardUserDefaults setBool:YES forKey:PopupSettingsExtendBar];
 	[NSUserDefaults.standardUserDefaults setBool:YES forKey:PopupSettingsHidesBottomBarWhenPushed];
 	[NSUserDefaults.standardUserDefaults setBool:NO forKey:PopupSettingsTouchVisualizerEnabled];
-	if(@available(iOS 13.0, *))
-	{
-		self.view.window.windowScene.touchVisualizerEnabled = [NSUserDefaults.standardUserDefaults boolForKey:PopupSettingsTouchVisualizerEnabled];
-	}
+	self.view.window.windowScene.touchVisualizerEnabled = [NSUserDefaults.standardUserDefaults boolForKey:PopupSettingsTouchVisualizerEnabled];
 	
 	[NSUserDefaults.standardUserDefaults removeObjectForKey:PopupSettingsVisualEffectViewBlurEffect];
 	
@@ -149,11 +147,7 @@ NSString* const PopupSettingsTouchVisualizerEnabled = @"PopupSettingsTouchVisual
 - (IBAction)_touchVisualizerEnabledDidChange:(UISwitch*)sender
 {
 	[NSUserDefaults.standardUserDefaults setBool:sender.isOn forKey:PopupSettingsTouchVisualizerEnabled];
-	
-	if(@available(iOS 13.0, *))
-	{
-		self.view.window.windowScene.touchVisualizerEnabled = sender.isOn;
-	}
+	self.view.window.windowScene.touchVisualizerEnabled = sender.isOn;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -187,17 +181,18 @@ NSString* const PopupSettingsTouchVisualizerEnabled = @"PopupSettingsTouchVisual
 	}
 	else
 	{
+		NSUInteger lastIdxInSection = [tableView numberOfRowsInSection:indexPath.section] - 1;
 		NSUInteger prevValue = [[NSUserDefaults.standardUserDefaults objectForKey:key] unsignedIntegerValue];
 		if(prevValue == 0xFFFF)
 		{
-			prevValue = 3;
+			prevValue = lastIdxInSection;
 		}
 		
 		[tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:prevValue inSection:indexPath.section]].accessoryType = UITableViewCellAccessoryNone;
 		[tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryCheckmark;
 		
 		NSUInteger value = indexPath.row;
-		if(value == 3)
+		if(value == lastIdxInSection)
 		{
 			value = 0xFFFF;
 		}

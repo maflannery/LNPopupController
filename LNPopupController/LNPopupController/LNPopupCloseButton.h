@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <LNPopupController/LNPopupDefinitions.h>
 
 /**
  * Available styles for the popup close button
@@ -21,14 +22,17 @@ typedef NS_ENUM(NSInteger, LNPopupCloseButtonStyle) {
 	 * Round close button style
 	 */
 	LNPopupCloseButtonStyleRound,
+	
 	/**
 	 * Chevron close button style
 	 */
 	LNPopupCloseButtonStyleChevron,
-    /**
-     * Flat close button style
-     */
-    LNPopupCloseButtonStyleFlat,
+	
+	/**
+	 * Flat close button style
+	 */
+	LNPopupCloseButtonStyleFlat,
+	
 	/**
 	 * No close button
 	 */
@@ -37,6 +41,7 @@ typedef NS_ENUM(NSInteger, LNPopupCloseButtonStyle) {
 
 NS_ASSUME_NONNULL_BEGIN
 
+NS_SWIFT_UI_ACTOR
 @interface LNPopupCloseButton : UIButton <UIAppearanceContainer>
 
 /**

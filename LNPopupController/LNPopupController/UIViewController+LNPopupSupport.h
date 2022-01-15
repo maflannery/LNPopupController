@@ -7,14 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <LNPopupController/LNPopupDefinitions.h>
 #import <LNPopupController/LNPopupContentView.h>
 #import <LNPopupController/LNPopupBar.h>
 #import <LNPopupController/LNPopupItem.h>
 
-#define LN_DEPRECATED_API(x) __attribute__((deprecated(x)))
-#define LN_UNAVAILABLE_API(x) __attribute__((unavailable(x)))
-
 NS_ASSUME_NONNULL_BEGIN
+
+extern const double LNSnapPercentDefault;
 
 /**
  * Available interaction styles with the popup bar and popup content view.
@@ -48,7 +48,7 @@ typedef NS_ENUM(NSInteger, LNPopupInteractionStyle) {
 	 * No interaction
 	 */
 	LNPopupInteractionStyleNone = 0xFFFF
-};
+} NS_REFINED_FOR_SWIFT;
 
 /**
  * The state of the popup presentation.
@@ -73,7 +73,7 @@ typedef NS_ENUM(NSInteger, LNPopupPresentationState){
 };
 
 /**
- * Popup presentation support for @c UIViewController subclasses.
+ * Popup content support for @c UIViewController subclasses.
  */
 @interface UIViewController (LNPopupContent)
 
@@ -128,25 +128,44 @@ typedef NS_ENUM(NSInteger, LNPopupPresentationState){
 - (void)popupPresentationControllerDidDismissPopupBar:(UIViewController*)popupPresentationController animated:(BOOL)animated;
 
 /**
+ * Notifies the delegate that the popup is about to be opened with the specified popup content controller.
+ */
+- (void)popupPresentationController:(UIViewController*)popupPresentationController willOpenPopupWithContentController:(UIViewController*)popupContentController animated:(BOOL)animated;
+/**
+ * Notifies the delegate that the popup has been opened with the specified popup content controller.
+ */
+- (void)popupPresentationController:(UIViewController*)popupPresentationController didOpenPopupWithContentController:(UIViewController*)popupContentController  animated:(BOOL)animated;
+/**
+ * Notifies the delegate that the popup is about to be closed with the specified popup content controller.
+ */
+- (void)popupPresentationController:(UIViewController*)popupPresentationController willClosePopupWithContentController:(UIViewController*)popupContentController animated:(BOOL)animated;
+/**
+ * Notifies the delegate that the popup has been closed with the specified popup content controller.
+ */
+- (void)popupPresentationController:(UIViewController*)popupPresentationController didClosePopupWithContentController:(UIViewController*)popupContentController animated:(BOOL)animated;
+
+/**
  * Notifies the delegate that the popup is about to be opened.
  */
-- (void)popupPresentationControllerWillOpenPopup:(UIViewController*)popupPresentationController animated:(BOOL)animated;
+- (void)popupPresentationControllerWillOpenPopup:(UIViewController*)popupPresentationController animated:(BOOL)animated LN_DEPRECATED_API("Use popupPresentationController:willOpenPopupWithContentController:animated: instead");
 /**
  * Notifies the delegate that the popup has been opened.
  */
-- (void)popupPresentationControllerDidOpenPopup:(UIViewController*)popupPresentationController animated:(BOOL)animated;
+- (void)popupPresentationControllerDidOpenPopup:(UIViewController*)popupPresentationController animated:(BOOL)animated LN_DEPRECATED_API("Use popupPresentationController:didOpenPopupWithContentController:animated: instead");
 /**
  * Notifies the delegate that the popup is about to be closed.
  */
-- (void)popupPresentationControllerWillClosePopup:(UIViewController*)popupPresentationController animated:(BOOL)animated;
+- (void)popupPresentationControllerWillClosePopup:(UIViewController*)popupPresentationController animated:(BOOL)animated LN_DEPRECATED_API("Use popupPresentationController:willClosePopupWithContentController:animated: instead");
 /**
  * Notifies the delegate that the popup has been closed.
  */
-- (void)popupPresentationControllerDidClosePopup:(UIViewController*)popupPresentationController animated:(BOOL)animated;
-
+- (void)popupPresentationControllerDidClosePopup:(UIViewController*)popupPresentationController animated:(BOOL)animated LN_DEPRECATED_API("Use popupPresentationController:didClosePopupWithContentController:animated: instead");
 
 @end
 
+/**
+ * Popup presentation support for @c UIViewController subclasses.
+ */
 @interface UIViewController (LNPopupPresentation)
 
 /**
@@ -203,7 +222,12 @@ typedef NS_ENUM(NSInteger, LNPopupPresentationState){
 /**
  * The popup bar interaction style.
  */
-@property (nonatomic, assign) LNPopupInteractionStyle popupInteractionStyle;
+@property (nonatomic, assign) LNPopupInteractionStyle popupInteractionStyle NS_REFINED_FOR_SWIFT;
+
+/**
+ * The percent of the container controller's view height to drag before closing the popup.
+ */
+@property (nonatomic, assign) double popupSnapPercent NS_REFINED_FOR_SWIFT;
 
 /**
  * The popup bar managed by the system. (read-only)
@@ -220,11 +244,11 @@ typedef NS_ENUM(NSInteger, LNPopupPresentationState){
 @property (nonatomic, assign) BOOL shouldExtendPopupBarUnderSafeArea;
 
 /**
- * Call this method to update the popup bar appearance (style, tint color, etc.) according to its docking view. You should call this after updating the docking view.
+ * Call this method to update the popup bar appearance (background effect, tint color, etc.) according to its docking view. You should call this after updating the docking view.
  *
- * If the popup bar's @c inheritsVisualStyleFromDockingView property is set to @c false, or a custom popup bar view controller is used, this method has no effect. See @c LNPopupBar.inheritsVisualStyleFromDockingView and @c LNPopupBar.customBarViewController for more information.
+ * If the popup bar's @c inheritsAppearanceFromDockingView property is set to @c false, or a custom popup bar view controller is used, this method has no effect. See @c LNPopupBar.inheritsAppearanceFromDockingView and @c LNPopupBar.customBarViewController for more information.
  */
-- (void)updatePopupBarAppearance;
+- (void)setNeedsPopupBarAppearanceUpdate;
 
 /**
  * The popup content container view. (read-only)
@@ -292,6 +316,13 @@ typedef NS_ENUM(NSInteger, LNPopupPresentationState){
  * @warning This API is no longer used. Use @c bottomDockingViewForPopupBar instead.
  */
 @property (nullable, nonatomic, strong, readonly) __kindof UIView* bottomDockingViewForPopup LN_UNAVAILABLE_API("Use bottomDockingViewForPopupBar instead.");
+
+/**
+ * Call this method to update the popup bar appearance (style, tint color, etc.) according to its docking view. You should call this after updating the docking view.
+ *
+ * If the popup bar's @c inheritsAppearanceFromDockingView property is set to @c false, or a custom popup bar view controller is used, this method has no effect. See @c LNPopupBar.inheritsAppearanceFromDockingView and @c LNPopupBar.customBarViewController for more information.
+ */
+- (void)updatePopupBarAppearance LN_DEPRECATED_API("Use setNeedsPopupBarAppearanceUpdate instead.");
 
 @end
 

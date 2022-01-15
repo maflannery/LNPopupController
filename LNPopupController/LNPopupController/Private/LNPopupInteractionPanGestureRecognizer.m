@@ -13,6 +13,12 @@
 
 extern LNPopupInteractionStyle _LNPopupResolveInteractionStyleFromInteractionStyle(LNPopupInteractionStyle style);
 
+@interface UIViewController ()
+
+- (CGRect)_ln_interactionLimitRect;
+
+@end
+
 @interface LNPopupInteractionPanGestureRecognizerDelegate : LNForwardingDelegate <UIGestureRecognizerDelegate>
 @end
 
@@ -38,6 +44,17 @@ extern LNPopupInteractionStyle _LNPopupResolveInteractionStyleFromInteractionSty
 	LNPopupInteractionStyle resolvedStyle = _LNPopupResolveInteractionStyleFromInteractionStyle(_popupController.containerController.popupInteractionStyle);
 	
 	BOOL rv = resolvedStyle != LNPopupInteractionStyleNone;
+	
+	if(rv && gestureRecognizer.view == _popupController.currentContentController.view && [_popupController.currentContentController respondsToSelector:@selector(_ln_interactionLimitRect)])
+	{
+		CGRect limit = [_popupController.currentContentController _ln_interactionLimitRect];
+		CGPoint interactionPoint = [gestureRecognizer locationInView:gestureRecognizer.view];
+		
+		if(CGRectContainsPoint(limit, interactionPoint) == NO)
+		{
+			return NO;
+		}
+	}
 	
 	if(rv && [self.forwardedDelegate respondsToSelector:_cmd])
 	{
@@ -123,12 +140,9 @@ extern LNPopupInteractionStyle _LNPopupResolveInteractionStyleFromInteractionSty
 		return [self.forwardedDelegate gestureRecognizer:gestureRecognizer shouldRequireFailureOfGestureRecognizer:otherGestureRecognizer];
 	}
 	
-	if (@available(iOS 13.0, *))
+	if([otherGestureRecognizer.name hasPrefix:@"undointeraction"])
 	{
-		if([otherGestureRecognizer.name hasPrefix:@"undointeraction"])
-		{
-			return NO;
-		}
+		return NO;
 	}
 
 	if([NSStringFromClass(otherGestureRecognizer.view.class) containsString:@"SwiftUI"])
