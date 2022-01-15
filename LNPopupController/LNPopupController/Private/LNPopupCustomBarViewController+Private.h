@@ -15,4 +15,13 @@
 @property (nonatomic, weak, readwrite) LNPopupBar* containingPopupBar;
 @property (nonatomic, weak) LNPopupController* popupController;
 
+- (void)_activeAppearanceDidChange:(LNPopupBarAppearance*)activeAppearance;
+
+- (void)_userFacing_viewWillAppear:(BOOL)animated;
+- (void)_userFacing_viewDidAppear:(BOOL)animated;
+- (void)_userFacing_viewWillDisappear:(BOOL)animated;
+- (void)_userFacing_viewDidDisappear:(BOOL)animated;
+
 @end
+
+@interface _LNPopupCustomBarViewController_AppearanceControl : LNPopupCustomBarViewController @end

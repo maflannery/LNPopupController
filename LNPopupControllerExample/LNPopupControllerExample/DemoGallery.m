@@ -11,23 +11,10 @@
 #if LNPOPUP
 @import LNPopupController;
 #import "IntroWebViewController.h"
+#import "LNPopupDemoContextMenuInteraction.h"
 #endif
 
-@interface DemoGalleryControllerTableView : UITableView @end
-@implementation DemoGalleryControllerTableView
-
-- (BOOL)canBecomeFocused
-{
-	return NO;
-}
-
-@end
-
-@interface DemoGalleryController : UITableViewController <
-#if LNPOPUP
-UIContextMenuInteractionDelegate
-#endif
->
+@interface DemoGalleryController : UITableViewController
 @end
 
 @implementation DemoGalleryController
@@ -46,11 +33,9 @@ UIContextMenuInteractionDelegate
 #if LNPOPUP
 	_demoVC = [IntroWebViewController new];
 	
-	self.navigationController.popupBar.marqueeScrollEnabled = YES;
-	if (@available(iOS 13.0, *))
-	{
-		self.navigationController.popupContentView.popupCloseButton.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
-	}
+	self.navigationController.popupBar.standardAppearance.marqueeScrollDelay = 0.0;
+	self.navigationController.popupBar.standardAppearance.marqueeScrollEnabled = YES;
+	self.navigationController.popupContentView.popupCloseButton.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
 #endif
 }
 
@@ -62,11 +47,7 @@ UIContextMenuInteractionDelegate
 	self.navigationController.view.tintColor = self.navigationController.navigationBar.tintColor;
 	[self.navigationController presentPopupBarWithContentViewController:_demoVC animated:YES completion:nil];
 	
-	if (@available(iOS 13.0, *))
-	{
-		UIContextMenuInteraction* i = [[UIContextMenuInteraction alloc] initWithDelegate:self];
-		[self.navigationController.popupBar addInteraction:i];
-	}
+	[self.navigationController.popupBar addInteraction:[LNPopupDemoContextMenuInteraction new]];
 #endif
 }
 
@@ -96,28 +77,5 @@ UIContextMenuInteractionDelegate
 	
 	return YES;
 }
-
-#pragma mark UIContextMenuInteractionDelegate
-
-#if LNPOPUP
-- (nullable UIContextMenuConfiguration *)contextMenuInteraction:(UIContextMenuInteraction *)interaction configurationForMenuAtLocation:(CGPoint)location API_AVAILABLE(ios(13.0))
-{
-	return [UIContextMenuConfiguration configurationWithIdentifier:nil previewProvider:nil actionProvider:nil];
-}
-
-- (void)contextMenuInteraction:(UIContextMenuInteraction *)interaction willEndForConfiguration:(UIContextMenuConfiguration *)configuration animator:(nullable id<UIContextMenuInteractionAnimating>)animator API_AVAILABLE(ios(13.0))
-{
-	interaction.view.userInteractionEnabled = NO;
-	
-	[animator addCompletion:^{
-		UIActivityViewController* avc = [[UIActivityViewController alloc] initWithActivityItems:@[[NSURL URLWithString:@"https://github.com/LeoNatan/LNPopupController"]] applicationActivities:nil];
-		avc.modalPresentationStyle = UIModalPresentationFormSheet;
-		avc.popoverPresentationController.sourceView = self.navigationController.popupBar;
-		[self presentViewController:avc animated:YES completion:nil];
-		
-		interaction.view.userInteractionEnabled = YES;
-	}];
-}
-#endif
 
 @end

@@ -14,9 +14,12 @@ typedef void (^LNInWindowBlock)(dispatch_block_t);
 
 @interface UIView (LNPopupSupportPrivate)
 
+- (void)_ln_triggerScrollEdgeAppearanceRefreshIfNeeded;
+- (UIViewController*)_ln_containerController;
+
 - (void)_ln_letMeKnowWhenViewInWindowHierarchy:(LNInWindowBlock)block;
 - (void)_ln_forgetAboutIt;
-- (nullable NSString*)_effectGroupingIdentifierIfAvailable;
+- (nullable NSString*)_ln_effectGroupingIdentifierIfAvailable;
 
 @end
 
